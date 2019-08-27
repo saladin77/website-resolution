@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html class="no-js">
+
+<head>
+    <meta charset='UTF-8'>
+    <title>GatotKaca</title>
+    <style>
+        /* Paste this css to your style sheet file or under head tag */
+/* This only works with JavaScript, 
+if it's not present, don't show loader */
+.no-js #loader { display: none;  }
+.js #loader { display: block; position: absolute; left: 100px; top: 0; }
+.se-pre-con {
+	position: fixed;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 100%;
+	z-index: 9999;
+	background: url(core/images/loader-64x/Preloader_2.gif) center no-repeat #fff;
+}
+</style>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.2/modernizr.js"></script>
+    <script>
+        //paste this code under head tag or in a seperate js file.
+	// Wait for window load
+	$(window).load(function() {
+		// Animate loader off screen
+		$(".se-pre-con").fadeOut("slow").delay(1000000).hide(0);
+	});
+</script>
+</head>
+
+<body>
+    <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#"></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav ">
+                <a class="nav-item nav-link active" href="#home">Home <span class="sr-only">(current)</span></a>
+                <a class="nav-item nav-link" href="About/About.html">Story</a>
+                <a class="nav-item nav-link" href="https://docs.google.com/forms/d/e/1FAIpQLSct3eoDofidDzjiUYX2cfrMXynHBlI4AEHX_Nyu3WY8v3z85w/viewform?usp=sf_link" onclick="setTimeout(function(){var ww = window.open(window.location, '_blank'); ww.close(); }, 1000);">
+                    Close
+                </a>
+            </div>
+        </div>
+    </nav>
+    <!-- Paste this code after body tag -->
+    <div class="se-pre-con"></div>
+    <!-- Ends -->
+    <canvas id="canvas" class="ml-8 col-md-12" onkeypress="ulang(this)"></canvas>
+    <div class="deskripsi">
+        <p>Gunakan spacebar <img src="img/space.png" alt="">untuk meloncat, hindari segala rintangan, dan buatlah score setinggi mungkin, dan gunakan tombol ENTER <img src="img/enter.png" alt="" width="55px">untuk mengulang permaianan </p>
+    </div>
+    <div class="footer bg-light">
+        <p>&copy; 2019 By Ryan_Rizki</p>
+    </div>
+</body>
+
+</html>
+<script>
+var stage = new Audio();
+stage.src = "sound/Gending Majapahit.mp3";
+stage.volume = 0.5;
+
+var beep = new Audio();
+beep.src = "sound/Beep.wav";
+
+var jump = new Audio();
+jump.src = "sound/jump.mp3";
+jump.volume = 0.7;
+
+var die = new Audio();
+die.src = "sound/die.mp3";
+die.volume = 0.5;
+
+var gatot1 = new Image();
+gatot1.src = "img/gatot1.png";
+
+var gatot2 = new Image();
+gatot2.src = "img/gatot2.png";
+
+var mati = new Image();
+mati.src = "img/gatot3.png";
+
+var bg = new Image();
+bg.src = "img/bg.jpg";
+
+var logo = new Image();
+logo.src = "img/fix1.png";
+
+var gambarTiang = new Image();
+gambarTiang.src = "img/gunung1.png";
+
+var gambarTiang2 = new Image();
+gambarTiang2.src = "img/gunung2.png";
+
+var pintu = new Image();
+pintu.src = "img/blackhole1.png";
+
+var story1 = new Image();
+story1.src = "img/story/1.jpg";
+
+function mulaiKanvas() {
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+    canvas.width = canvas.scrollWidth;
+    canvas.height = canvas.scrollHeight;
+    var cW = canvas.width;
+    var cH = canvas.height;
+    var bgX = 0,
+        start = false;
+
+
+    function splash() {
+        ctx.clearRect(0, 0, cW, cH);
+        ctx.drawImage(bg, bgX -= 2, 0)
+        if (bgX == -1598) {
+            bgX = 0;
+        }
+        ctx.font = "bold 20px arial";
+        ctx.fillText("press space to start", 300, 400);
+
+
+
+        ctx.drawImage(logo, 200, 100);
+    }
+    var inSplash = setInterval(splash, 30);
+    document.addEventListener('keypress', function(event) {
+        if (start == false) {
+            var key = event.which || event.keyCode;
+            if (key === 32) {
+                start = true;
+                clearInterval(inSplash);
+                utama();
+                stage.play();
+
+            }
+
+        }
+    });
+
+
+
+
+    function utama() {
+        var gantiGambar = false;
+
+        function BG() {
+            this.x = 0;
+            this.render = function() {
+                ctx.drawImage(bg, this.x--, 0);
+                if (this.x == -1499) {
+                    this.x = 0;
+
+                }
+            }
+
+
+        }
+        var latar = new BG();
+
+        function Karakter() {
+            this.x = 100;
+            this.y = 200;
+            this.w = 30, this.h = 40, this.i = 0;
+            this.render = function() {
+                if (gantiGambar) {
+                    ctx.drawImage(gatot2, this.x, this.y += 5);
+                    this.i++;
+                    if (this.i == 5) {
+                        gantiGambar = false;
+                        jump.play();
+                        this.i = 0;
+                    }
+                } else {
+                    ctx.drawImage(gatot1, this.x, this.y += 5);
+
+                }
+            }
+        }
+        var karakter = new Karakter();
+        var tiang = [];
+        tambahTiang();
+
+        function tambahTiang() {
+            var x = 800,
+                y = 0,
+                w = 50,
+                h = 260;
+            var acak = Math.floor(Math.random() * 250);
+            tiang.push({ "x": x, "y": y - acak, "w": w, "h": h });
+
+        }
+
+
+        var hitung = 0;
+
+        function selesai() {
+            clearInterval(interval);
+            ctx.clearRect(0, 0, cW, cH);
+            latar.render();
+            renderTiang();
+            ctx.drawImage(mati, karakter.x, karakter.y);
+            ctx.font = "Bold 60px arial";
+            ctx.fillText("GAME OVER", 200, 150);
+
+            ctx.font = "Bold 60px arial";
+
+            ctx.fillText("your Score:" + skor, 200, 200);
+            stage.pause();
+            stage.currentTime = 0;
+
+
+        }
+        var Finish = false;
+
+
+        function finish() {
+
+            clearInterval(interval);
+            ctx.clearRect(0, 0, cW, cH);
+            latar.render();
+            ctx.font = "Bold 60px arial";
+            ctx.fillText("You Win", 200, 150);
+            ctx.fillStyle = "white";
+            ctx.font = "Bold 60px arial";
+            ctx.fillText("your Score:" + skor, 200, 200);
+            stage.pause();
+            stage.currentTime = 0;
+            Finish = true;
+
+            document.addEventListener('keyup', function(event) {
+                if (Finish == true) {
+                    var key = event.which || event.keyCode;
+                    if (key == 32) {
+                        location.href = "../About/About.html";
+                        kedua();
+                    }
+
+                }
+            });
+
+        }
+
+        function restrartsound() {
+            if (start == true || selesai == true) {
+                stage.play();
+            }
+        }
+        window.addEventListener('keypress', function ulang(event) {
+            if (start == true) {
+                var key = event.which;
+                if (key == 13) {
+
+                    var yakin = confirm("Apakah kamu yakin mengulang?");
+                    if (yakin) {
+                        clearInterval(interval);
+                        ctx.clearRect(0, 0, cW, cH);
+
+                        return utama();
+                        restrartsound();
+                    } else {
+                        close();
+                    }
+
+                }
+
+            }
+        });
+
+
+
+        var skor = 0,
+            tambahNilai = true;
+
+        function tambahSkor() {
+            skor++;
+            beep.play();
+        }
+
+        function kena() {
+            for (var i = 0; i < tiang.length; i++) {
+                var t = tiang[i];
+
+                if ((karakter.x + karakter.w > t.x && karakter.y < t.y + t.h && karakter.x < t.x + t.w) ||
+                    (karakter.x + karakter.w > t.x && karakter.y + karakter.h > t.y + t.h + 220 && karakter.x < t.x + t.w)) {
+                    selesai();
+                    die.play();
+
+
+                } else if (t.x + t.w < karakter.x) {
+                    if (tambahNilai) {
+                        tambahSkor();
+                        tambahNilai = false;
+                    }
+                }
+            }
+            if (karakter.y <= 0) {
+                die.play();
+                selesai();
+            }
+            if (karakter.y + karakter.h > cH) {
+                die.play();
+                selesai();
+            }
+
+
+        }
+
+        var door = [{ "x": 850, "y": 150, "w": 155, "h": 224 }];
+
+        function renderdoor() {
+            for (var u = 0; u < door.length; u++) {
+                var d = door[u];
+                ctx.drawImage(pintu, d.x -= 1.5, d.y);
+                if ((d.x - 55 < karakter.x + karakter.w && d.y + d.h > karakter.y && d.y < karakter.y + karakter.h)) {
+                    finish();
+                }
+            }
+
+        }
+
+        function renderTiang() {
+            for (var i = 0; i < tiang.length; i++) {
+                var t = tiang[i];
+                ctx.drawImage(gambarTiang2, t.x -= 3, t.y);
+                ctx.drawImage(gambarTiang, t.x -= 3, t.y + t.h + 220);
+                if (t.x + t.w < 0) {
+                    tiang.splice(i, 1);
+                    tambahNilai = true;
+                }
+            }
+            hitung++;
+            if (hitung == 150) {
+                tambahTiang();;
+            }
+        }
+
+        function animasi() {
+            ctx.save();
+            ctx.clearRect(0, 0, cW, cH);
+            latar.render();
+            karakter.render();
+            renderdoor();
+            renderTiang();
+            ctx.font = "Normal 30px Arial";
+            ctx.fillText("score:" + skor, 20, 60);
+            kena();
+
+
+
+            ctx.restore();
+        }
+
+        var interval = setInterval(animasi, 30);
+        document.addEventListener('keypress', function(event) {
+            var key = event.which || event.keyCode;
+            if (key === 32) { // 13 is enter
+                karakter.y -= 65;
+                gantiGambar = true;
+
+            }
+        })
+    } // 
+
+
+
+
+
+
+    function utama() {
+        var gantiGambar = false;
+
+        function BG() {
+            this.x = 0;
+            this.render = function() {
+                ctx.drawImage(bg, this.x--, 0);
+                if (this.x == -1499) {
+                    this.x = 0;
+
+                }
+            }
+
+
+        }
+        var latar = new BG();
+
+        function Karakter() {
+            this.x = 100;
+            this.y = 200;
+            this.w = 30, this.h = 40, this.i = 0;
+            this.render = function() {
+                if (gantiGambar) {
+                    ctx.drawImage(gatot2, this.x, this.y += 5);
+                    this.i++;
+                    if (this.i == 5) {
+                        gantiGambar = false;
+                        jump.play();
+                        this.i = 0;
+                    }
+                } else {
+                    ctx.drawImage(gatot1, this.x, this.y += 5);
+
+                }
+            }
+        }
+        var karakter = new Karakter();
+        var tiang = [];
+        tambahTiang();
+
+        function tambahTiang() {
+            var x = 800,
+                y = 0,
+                w = 50,
+                h = 260;
+            var acak = Math.floor(Math.random() * 250);
+            tiang.push({ "x": x, "y": y - acak, "w": w, "h": h });
+
+        }
+
+
+        var hitung = 0;
+
+        function selesai() {
+            clearInterval(interval);
+            ctx.clearRect(0, 0, cW, cH);
+            latar.render();
+            renderTiang();
+            ctx.drawImage(mati, karakter.x, karakter.y);
+            ctx.font = "Bold 60px arial";
+            ctx.fillText("GAME OVER", 200, 150);
+
+            ctx.font = "Bold 60px arial";
+
+            ctx.fillText("your Score:" + skor, 200, 200);
+            stage.pause();
+            stage.currentTime = 0;
+
+
+        }
+        var Finish = false;
+
+
+        function finish() {
+
+            clearInterval(interval);
+            ctx.clearRect(0, 0, cW, cH);
+            latar.render();
+            ctx.font = "Bold 60px arial";
+            ctx.fillText("You Win", 200, 150);
+            ctx.fillStyle = "white";
+            ctx.font = "Bold 60px arial";
+            ctx.fillText("your Score:" + skor, 200, 200);
+            stage.pause();
+            stage.currentTime = 0;
+            Finish = true;
+
+            document.addEventListener('keyup', function(event) {
+                if (Finish == true) {
+                    var key = event.which || event.keyCode;
+                    if (key === 32) {
+                        location.href = "About/About.html";
+                        kedua();
+                    }
+
+                }
+            });
+
+        }
+
+        function restrartsound() {
+            if (start == true || selesai == true) {
+                stage.play();
+            }
+        }
+        window.addEventListener('keypress', function ulang(event) {
+            if (start == true) {
+                var key = event.which;
+                if (key == 13) {
+
+                    var yakin = confirm("Apakah kamu yakin mengulang?");
+                    if (yakin) {
+                        clearInterval(interval);
+                        ctx.clearRect(0, 0, cW, cH);
+
+                        return utama();
+                        restrartsound();
+                    } else {
+                        close();
+                    }
+
+                }
+
+            }
+        });
+
+
+
+        var skor = 0,
+            tambahNilai = true;
+
+        function tambahSkor() {
+            skor++;
+            beep.play();
+        }
+
+        function kena() {
+            for (var i = 0; i < tiang.length; i++) {
+                var t = tiang[i];
+
+                if ((karakter.x + karakter.w > t.x && karakter.y < t.y + t.h && karakter.x < t.x + t.w) ||
+                    (karakter.x + karakter.w > t.x && karakter.y + karakter.h > t.y + t.h + 200 && karakter.x < t.x + t.w)) {
+                    selesai();
+                    die.play();
+
+
+                } else if (t.x + t.w < karakter.x) {
+                    if (tambahNilai) {
+                        tambahSkor();
+                        tambahNilai = false;
+                    }
+                }
+            }
+            if (karakter.y <= 0) {
+                die.play();
+                selesai();
+            }
+            if (karakter.y + karakter.h > cH) {
+                die.play();
+                selesai();
+            }
+
+
+        }
+
+        var door = [{ "x": 850, "y": 150, "w": 155, "h": 224 }];
+
+        function renderdoor() {
+            for (var u = 0; u < door.length; u++) {
+                var d = door[u];
+                ctx.drawImage(pintu, d.x--, d.y);
+                if ((d.x - 70 < karakter.x + karakter.w && d.y + d.h > karakter.y && d.y < karakter.y + karakter.h)) {
+                    finish();
+                }
+            }
+
+        }
+
+        function renderTiang() {
+            for (var i = 0; i < tiang.length; i++) {
+                var t = tiang[i];
+                ctx.drawImage(gambarTiang2, t.x -= 3, t.y);
+                ctx.drawImage(gambarTiang, t.x -= 3, t.y + t.h + 220);
+                if (t.x + t.w < 0) {
+                    tiang.splice(i, 1);
+                    tambahNilai = true;
+                }
+            }
+            hitung++;
+            if (hitung == 50) {
+                tambahTiang();
+
+                hitung = 0;
+            }
+        }
+
+        function animasi() {
+            ctx.save();
+            ctx.clearRect(0, 0, cW, cH);
+            latar.render();
+            karakter.render();
+            renderdoor();
+            renderTiang();
+            ctx.font = "Normal 30px Arial";
+            ctx.fillText("score:" + skor, 20, 60);
+            kena();
+
+
+
+            ctx.restore();
+        }
+
+        var interval = setInterval(animasi, 30);
+        document.addEventListener('keypress', function(event) {
+            var key = event.which || event.keyCode;
+            if (key === 32) { // 13 is enter
+                karakter.y -= 65;
+                gantiGambar = true;
+
+            }
+        })
+    } // 
+
+
+
+
+}
+window.addEventListener('load', function(event) {
+    mulaiKanvas()
+});
+</script>
